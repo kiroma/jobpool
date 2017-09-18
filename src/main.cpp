@@ -8,8 +8,8 @@ using namespace std;
 
 bool running = true;
 
-bool job1taken = false;
-bool job2taken = false;
+atomic_flag job1taken = ATOMIC_FLAG_INIT;
+atomic_flag job2taken = ATOMIC_FLAG_INIT;
 bool job1finished = false;
 bool job2finished = false;
 bool jobsdone = false;
@@ -18,9 +18,8 @@ mutex mtx;
 
 void work()
 {
-	if(!job1taken)
+	if(!job1taken.test_and_set())
 	{
-		job1taken = true;
 		mtx.lock();
 		cout << "Starting to do job1" << endl;
 		mtx.unlock();
@@ -30,9 +29,8 @@ void work()
 		mtx.unlock();
 		job1finished = true;
 	}
-	if(!job2taken)
+	if(!job2taken.test_and_set())
 	{
-		job2taken = true;
 		mtx.lock();
 		cout << "Starting to do job2" << endl;
 		mtx.unlock();
