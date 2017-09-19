@@ -22,7 +22,7 @@ void work()
 		console.lock();
 		cout << "Starting to do job1" << endl;
 		console.unlock();
-		std::this_thread::sleep_for(1s);
+		std::this_thread::sleep_for(25s);
 		console.lock();
 		cout << "Finishing job1" << endl;
 		console.unlock();
@@ -33,7 +33,7 @@ void work()
 		console.lock();
 		cout << "Starting to do job2" << endl;
 		console.unlock();
-		std::this_thread::sleep_for(1s);
+		std::this_thread::sleep_for(25s);
 		console.lock();
 		cout << "Finishing job2" << endl;
 		console.unlock();
@@ -55,7 +55,7 @@ int main()
 {
 	cout << "Starting " << std::thread::hardware_concurrency() << " jobs" << endl;
 	sync.lock();
-	for(unsigned int i=1; i<=std::thread::hardware_concurrency(); i++)
+	for(unsigned int i=2; i<=std::thread::hardware_concurrency(); i++)
 	{
 		thread(worker).detach();
 	}
