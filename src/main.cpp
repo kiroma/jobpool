@@ -8,36 +8,41 @@ using namespace std;
 
 bool running = true;
 
-atomic_flag job1taken = ATOMIC_FLAG_INIT;
-atomic_flag job2taken = ATOMIC_FLAG_INIT;
-bool job1finished = false;
-bool job2finished = false;
+class job{
+    public:
+    atomic_flag taken = ATOMIC_FLAG_INIT;
+    bool finished = false;
+};
+
+job job1;
+job job2;
+
 mutex console;
 mutex sync;
 
 void work()
 {
-	if(!job1taken.test_and_set())
+	if(!job1.taken.test_and_set())
 	{
 		console.lock();
 		cout << "Starting to do job1" << endl;
 		console.unlock();
-		std::this_thread::sleep_for(25s);
+		std::this_thread::sleep_for(1s);
 		console.lock();
 		cout << "Finishing job1" << endl;
 		console.unlock();
-		job1finished = true;
+		job1.finished = true;
 	}
-	if(!job2taken.test_and_set())
+	if(!job2.taken.test_and_set())
 	{
 		console.lock();
 		cout << "Starting to do job2" << endl;
 		console.unlock();
-		std::this_thread::sleep_for(25s);
+		std::this_thread::sleep_for(1s);
 		console.lock();
 		cout << "Finishing job2" << endl;
 		console.unlock();
-		job2finished = true;
+		job2.finished = true;
 	}
 }
 
@@ -53,13 +58,13 @@ void worker()
 
 int main()
 {
-	cout << "Starting " << std::thread::hardware_concurrency() << " jobs" << endl;
+	cout << "Starting " << std::thread::hardware_concurrency() << " job(s)" << endl;
 	sync.lock();
 	for(unsigned int i=2; i<=std::thread::hardware_concurrency(); i++)
 	{
 		thread(worker).detach();
 	}
-	while(!job1finished || !job2finished)
+	while(!job1.finished || !job2.finished)
 	{
 		work();
 	}
